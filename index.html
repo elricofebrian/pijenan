@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#2E7D32" />
+<title>Padukuhan Pijenan</title>
+
+<!-- ====== RESET + VARIABEL + STYLE ====== -->
+<style>
+  /* reset.css (ringkas) */
+  *,*::before,*::after{box-sizing:border-box}html,body{height:100%}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+       color:var(--text-primary);background:var(--background)}
+  img{max-width:100%;display:block}button{cursor:pointer}
+  input,button,select,textarea{font:inherit}a{text-decoration:none;color:inherit}
+
+  /* variables.css */
+  :root{
+    --primary-green:#2E7D32; --primary-green-light:#66BB6A; --primary-green-dark:#1B5E20;
+    --secondary-blue:#1976D2; --secondary-orange:#FF8F00;
+    --text-primary:#212121; --text-secondary:#757575; --text-disabled:#BDBDBD;
+    --background:#FAFAFA; --surface:#FFFFFF; --divider:#E0E0E0;
+    --success:#4CAF50; --warning:#FF9800; --error:#F44336; --info:#2196F3;
+    --chat-sent:#E3F2FD; --chat-received:#F5F5F5; --chat-system:#FFF3E0;
+    --radius:12px; --shadow:0 6px 16px rgba(0,0,0,.08);
+  }
+
+  /* main.css + components.css */
+  .container{max-width:900px;margin:0 auto;padding:16px}
+  .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+  .row{display:flex;gap:12px;align-items:center}
+  .row.wrap{flex-wrap:wrap}
+  .col{flex:1}
+  .btn{height:44px;border:0;border-radius:10px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;
+       background:var(--primary-green);color:#fff}
+  .btn.secondary{background:var(--secondary-blue)}
+  .btn.warn{background:var(--secondary-orange)}
+  .btn.ghost{background:#fff;color:var(--primary-green);border:1px solid var(--primary-green)}
+  .input{height:48px;border:1px solid var(--divider);border-radius:10px;padding:0 12px;background:#fff;width:100%}
+  .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--divider);padding:6px 10px;border-radius:999px;color:#333;background:#fff}
+  .hide{display:none!important}
+  h1{font-size:2rem;font-weight:700;margin:0 0 8px}
+  h2{font-size:1.5rem;font-weight:600;margin:0 0 8px}
+  h3{font-size:1.25rem;font-weight:600;margin:0 0 8px}
+  small{font-size:.75rem;color:var(--text-secondary)}
+  .tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--divider);display:flex}
+  .tab{flex:1;text-align:center;padding:10px 6px;font-size:.8rem;color:var(--text-secondary)}
+  .tab.active{color:var(--primary-green)}
+  main{padding-bottom:76px}
+
+  /* header */
+  .appbar{position:sticky;top:0;background:linear-gradient(0deg,#fff, #fff);border-bottom:1px solid var(--divider);z-index:3}
+  .appbar .container{display:flex;align-items:center;gap:10px;padding:12px 16px}
+  .logo{width:36px;height:36px;border-radius:8px;object-fit:contain;background:#000}
+  .badge{padding:2px 8px;border-radius:999px;background:#eef;border:1px solid #cfe;color:#245}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr)}}
+
+  /* sections */
+  .news-item{display:grid;grid-template-columns:92px 1fr;gap:12px;border-bottom:1px solid var(--divider);padding:10px 0}
+  .news-item img{width:92px;height:72px;border-radius:8px;object-fit:cover;background:#eee}
+  .news-title{font-weight:600}
+  .news-meta{color:var(--text-secondary);font-size:.8rem}
+
+  /* chat */
+  .chat-wrap{height:58vh;overflow:auto;background:#fff;border:1px solid var(--divider);border-radius:12px;padding:8px}
+  .bubble{max-width:80%;margin:6px 0;padding:8px 10px;border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .me{background:var(--chat-sent);margin-left:auto;border-bottom-right-radius:4px}
+  .other{background:var(--chat-received);margin-right:auto;border-bottom-left-radius:4px}
+  .system{background:var(--chat-system);margin:6px auto;text-align:center}
+
+  /* footer */
+  .app-footer{margin:20px 0 90px}
+  .app-footer .container{padding:16px;text-align:center;color:var(--text-secondary)}
+  .splash-screen{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000}
+  .splash-screen img{width:92px;height:92px;border-radius:16px;margin-bottom:10px;object-fit:contain;background:#000}
+  .kbd{font-family:monospace;background:#eee;border-radius:6px;padding:0 6px;border:1px solid #ddd}
+</style>
+</head>
+<body>
+
+<!-- ====== SPLASH ====== -->
+<div id="splash" class="splash-screen">
+  <img id="logoSplash" src="assets/images/logo.png" alt="Logo Padukuhan Pijenan">
+  <h2>PADUKUHAN PIJENAN</h2>
+  <p>Dikembangkan oleh <strong>ELRICO FEBRIAN</strong></p>
+</div>
+
+<!-- ====== APP BAR ====== -->
+<header class="appbar">
+  <div class="container">
+    <img id="logoTop" class="logo" src="assets/images/logo.png" alt="Logo" />
+    <div class="col">
+      <div style="font-weight:700">Aplikasi Padukuhan Pijenan</div>
+      <small id="whoami">Belum masuk</small>
+    </div>
+    <span id="levelBadge" class="badge">Level?</span>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ====== LOGIN ====== -->
+  <section id="page-login" class="card">
+    <h2>Masuk</h2>
+    <div class="row wrap">
+      <div class="col">
+        <label>Nomor HP (+62…)</label>
+        <input id="inPhone" class="input" placeholder="+628xxxxxxxxxx" inputmode="tel" />
+      </div>
+      <div class="col">
+        <label>Kata Sandi</label>
+        <input id="inPass" class="input" type="password" placeholder="Min 6 karakter" />
+      </div>
+    </div>
+
+    <div class="row wrap" style="margin-top:8px">
+      <div class="col">
+        <label>Nama Lengkap</label>
+        <input id="inName" class="input" placeholder="Nama untuk profil/chat" />
+      </div>
+      <div class="col">
+        <label>Level</label>
+        <select id="inLevel" class="input">
+          <option value="5">5 - Warga</option>
+          <option value="4">4 - Ketua RT</option>
+          <option value="3">3 - Kader Desa</option>
+          <option value="2">2 - Pengurus Karang Taruna</option>
+          <option value="1">1 - Kepala Padukuhan</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row wrap" style="margin-top:8px">
+      <div class="col">
+        <label>Sub/RT</label>
+        <select id="inSubtype" class="input">
+          <option value="">—</option>
+          <option value="4a">Ketua RT 01</option>
+          <option value="4b">Ketua RT 02</option>
+          <option value="4c">Ketua RT 03</option>
+          <option value="4d">Ketua RT 04</option>
+          <option value="4e">Ketua RT 05</option>
+          <option value="4f">Ketua RT 06</option>
+          <option value="4g">Ketua RT 07</option>
+          <option value="4h">Ketua RT 08</option>
+        </select>
+      </div>
+      <div class="col">
+        <label>RT (untuk warga)</label>
+        <select id="inRT" class="input">
+          <option value="01">RT 01</option><option value="02">RT 02</option>
+          <option value="03">RT 03</option><option value="04">RT 04</option>
+          <option value="05">RT 05</option><option value="06">RT 06</option>
+          <option value="07">RT 07</option><option value="08">RT 08</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button id="btnLogin" class="btn">Masuk</button>
+      <button id="btnClearLocal" class="btn ghost">Bersihkan Data Lokal</button>
+    </div>
+    <small>Login ini lokal (disimpan di perangkat). Admin/level tinggi akan membuka fitur lebih banyak.</small>
+  </section>
+
+  <!-- ====== DASHBOARD ====== -->
+  <section id="page-home" class="hide">
+    <div class="grid">
+      <div class="card">
+        <h3>Berita Terkini</h3>
+        <div id="newsList"></div>
+        <div class="row" style="margin-top:8px">
+          <button id="refreshNews" class="btn secondary">Segarkan Berita</button>
+          <button id="addNewsOpen" class="btn ghost">Tambah Berita (Admin)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Chat Warga</h3>
+        <div class="row">
+          <select id="roomSelect" class="input">
+            <option value="umum">#umum (semua)</option>
+            <option value="staf">#staf (level 1–3)</option>
+            <option value="rt01">#RT01</option><option value="rt02">#RT02</option>
+            <option value="rt03">#RT03</option><option value="rt04">#RT04</option>
+            <option value="rt05">#RT05</option><option value="rt06">#RT06</option>
+            <option value="rt07">#RT07</option><option value="rt08">#RT08</option>
+          </select>
+          <span id="fbStatus" class="chip">Menghubungkan…</span>
+        </div>
+        <div id="chatWrap" class="chat-wrap"></div>
+        <div class="row" style="margin-top:6px">
+          <input id="chatInput" class="input" placeholder="Tulis pesan…" />
+          <button id="sendBtn" class="btn">Kirim</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Aspirasi / Saran</h3>
+        <textarea id="aspText" class="input" rows="4" placeholder="Tulis aspirasi…"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button id="aspSend" class="btn">Kirim Aspirasi</button>
+          <button id="aspListOpen" class="btn ghost">Lihat Arsip</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Donasi & Kegiatan</h3>
+        <div class="row wrap">
+          <input id="donTitle" class="input" placeholder="Judul kampanye/kegiatan" />
+          <input id="donTarget" class="input" type="number" placeholder="Target (opsional)" />
+        </div>
+        <textarea id="donDesc" class="input" rows="3" placeholder="Deskripsi singkat"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button id="donSave" class="btn">Simpan</button>
+          <button id="donListOpen" class="btn ghost">Daftar</button>
+        </div>
+        <small>Pembayaran aktual bisa via Transfer/E-Wallet; data transparansi dicatat di sini.</small>
+      </div>
+
+      <div class="card">
+        <h3>Profil</h3>
+        <div id="profileView"></div>
+        <div class="row" style="margin-top:8px">
+          <button id="btnLogout" class="btn warn">Keluar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Tentang Aplikasi</h3>
+        <p>Aplikasi layanan warga Padukuhan Pijenan. Fitur: Berita, Chat, Aspirasi, Donasi, Agenda.</p>
+        <p><strong>Developer: ELRICO FEBRIAN</strong></p>
+        <p>Kontak feedback: <span class="kbd">admin@pijenan.local</span> (contoh)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== MODAL TAMBAH BERITA (ADMIN) ====== -->
+  <dialog id="dlgNews" style="width:min(640px,96%);border:0;border-radius:12px;box-shadow:var(--shadow)">
+    <form method="dialog" class="card" style="margin:0">
+      <h3>Tambah Berita Manual</h3>
+      <input id="nTitle" class="input" placeholder="Judul" />
+      <input id="nImage" class="input" placeholder="URL Gambar (opsional)" />
+      <textarea id="nContent" class="input" rows="5" placeholder="Konten / ringkasan"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="nSave" class="btn">Simpan</button>
+        <button class="btn ghost">Tutup</button>
+      </div>
+      <small>Berita manual disimpan lokal & tampil bersama feed otomatis.</small>
+    </form>
+  </dialog>
+
+  <!-- ====== MODAL ASPIRASI LIST ====== -->
+  <dialog id="dlgAsp" style="width:min(640px,96%);border:0;border-radius:12px;box-shadow:var(--shadow)">
+    <div class="card" style="margin:0">
+      <h3>Arsip Aspirasi</h3>
+      <div id="aspList"></div>
+      <div class="row" style="margin-top:8px"><button class="btn ghost" onclick="this.closest('dialog').close()">Tutup</button></div>
+    </div>
+  </dialog>
+
+  <!-- ====== MODAL DONASI LIST ====== -->
+  <dialog id="dlgDon" style="width:min(640px,96%);border:0;border-radius:12px;box-shadow:var(--shadow)">
+    <div class="card" style="margin:0">
+      <h3>Daftar Donasi/Kegiatan</h3>
+      <div id="donList"></div>
+      <div class="row" style="margin-top:8px"><button class="btn ghost" onclick="this.closest('dialog').close()">Tutup</button></div>
+    </div>
+  </dialog>
+
+</main>
+
+<!-- ====== BOTTOM NAV ====== -->
+<nav class="tabs">
+  <div class="tab active" data-tab="home">Beranda</div>
+  <div class="tab" data-tab="news">Berita</div>
+  <div class="tab" data-tab="chat">Chat</div>
+  <div class="tab" data-tab="asp">Aspirasi</div>
+  <div class="tab" data-tab="more">Lainnya</div>
+</nav>
+
+<!-- ====== FOOTER ====== -->
+<footer class="app-footer">
+  <div class="container">
+    <p class="copyright">
+      &copy; 2024 Aplikasi Padukuhan Pijenan<br>
+      <strong>Dikembangkan oleh: ELRICO FEBRIAN</strong>
+    </p>
+  </div>
+</footer>
+
+<!-- ==================== SCRIPT ==================== -->
+<script type="module">
+/* ===== Utils dasar ===== */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => [...document.querySelectorAll(sel)];
+const esc = s => (s??"").toString().replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
+
+/* ===== Konfigurasi User Level (diringkas) ===== */
+const USER_LEVELS = {
+  1:{title:'Kepala Padukuhan', badge:'👑', color:'#D32F2F'},
+  2:{title:'Pengurus Karang Taruna', badge:'⭐', color:'#1976D2'},
+  3:{title:'Kader Desa', badge:'🛡️', color:'#388E3C'},
+  4:{title:'Ketua RT', badge:'📋', color:'#F57C00'},
+  5:{title:'Warga', badge:'👥', color:'#757575'}
+};
+
+/* ====== STORAGE KEY ====== */
+const K = {
+  user:'pj_user',
+  news:'pj_news_cache',
+  asp:'pj_asp',
+  don:'pj_don'
+};
+
+/* ====== Login Lokal ====== */
+function saveUser(u){ localStorage.setItem(K.user, JSON.stringify(u)); }
+function loadUser(){ try{return JSON.parse(localStorage.getItem(K.user)||'null')}catch{return null} }
+function loggedIn(){ return !!loadUser(); }
+
+$('#btnLogin').onclick = ()=>{
+  const phone=$('#inPhone').value.trim(), pass=$('#inPass').value.trim();
+  const name=$('#inName').value.trim()||'Warga';
+  const level=parseInt($('#inLevel').value,10);
+  const subtype=$('#inSubtype').value; const rt=$('#inRT').value;
+  if(!/^\+62\d{8,13}$/.test(phone)) return alert('Format HP harus +62…');
+  if(pass.length<6) return alert('Password minimal 6 karakter');
+  const u={id:crypto.randomUUID(),phone,pass,name,level,subtype,rt,created_at:Date.now()};
+  saveUser(u); boot();
+};
+$('#btnClearLocal').onclick = ()=>{
+  if(confirm('Hapus SEMUA data lokal?')){ Object.values(K).forEach(k=>localStorage.removeItem(k)); location.reload(); }
+};
+$('#btnLogout').onclick=()=>{ localStorage.removeItem(K.user); location.reload(); };
+
+/* ====== UI Boot ====== */
+function boot(){
+  const u=loadUser();
+  $('#splash').classList.add('hide');
+  if(!u){ $('#page-login').classList.remove('hide'); $('#page-home').classList.add('hide'); $('#whoami').textContent='Belum masuk'; return; }
+  $('#page-login').classList.add('hide'); $('#page-home').classList.remove('hide');
+  $('#whoami').textContent = `${u.name} • Level ${u.level} (${USER_LEVELS[u.level]?.title||'-'})`;
+  const badge = $('#levelBadge'); badge.textContent = USER_LEVELS[u.level]?.badge||'';
+  badge.style.background = '#eef'; badge.style.borderColor='#cfe';
+  // Profil ringkas
+  $('#profileView').innerHTML = `
+    <div class="row"><div class="chip">HP: ${esc(u.phone)}</div><div class="chip">Level: ${u.level}</div><div class="chip">RT: ${esc(u.rt)}</div></div>
+    <small>UID lokal: ${u.id.slice(0,8)}…</small>`;
+  // Buka default tab Beranda
+  renderNewsFromCache(); // tampilkan cache bila ada
+  attachRoomByPermission();
+}
+setTimeout(()=>$('#splash').classList.add('hide'), 1300);
+
+/* ======== BERITA: Auto-Update + Manual ======== */
+// Sumber RSS tepercaya (bisa kamu tambah)
+const RSS_SOURCES = [
+  {name:'ANTARA Nasional', url:'https://www.antaranews.com/rss/nasional'},
+  {name:'Kominfo', url:'https://kominfo.go.id/rss'},
+  {name:'BMKG Cuaca', url:'https://bmkg.go.id/berita-rss'},
+];
+
+async function fetchRSS(url){
+  // pakai AllOrigins agar lolos CORS
+  const prox = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+  const res = await fetch(prox);
+  const text = await res.text();
+  const xml = new DOMParser().parseFromString(text, 'text/xml');
+  const items = [...xml.querySelectorAll('item')].slice(0,8).map(it=>{
+    const title=it.querySelector('title')?.textContent||'';
+    const link=it.querySelector('link')?.textContent||'#';
+    const pub=it.querySelector('pubDate')?.textContent||'';
+    // cari gambar kalau ada media:content / enclosure
+    let img = it.querySelector('enclosure')?.getAttribute('url') ||
+              it.querySelector('media\\:content')?.getAttribute('url') || '';
+    return {title, link, pub, img, source:url, manual:false};
+  });
+  return items;
+}
+
+async function refreshNews(){
+  $('#refreshNews').disabled = true; $('#refreshNews').textContent='Memuat…';
+  try{
+    let all=[];
+    for(const s of RSS_SOURCES){ try{ const list=await fetchRSS(s.url); all=all.concat(list);}catch{} }
+    // tambah manual dari cache
+    const manual = JSON.parse(localStorage.getItem(K.news)||'[]').filter(n=>n.manual);
+    all = manual.concat(all);
+    // simpan cache
+    localStorage.setItem(K.news, JSON.stringify(all.slice(0,60)));
+    renderNewsFromCache();
+  }catch(e){ alert('Gagal mengambil berita. Coba lagi.'); console.error(e); }
+  $('#refreshNews').disabled = false; $('#refreshNews').textContent='Segarkan Berita';
+}
+function renderNewsFromCache(){
+  const list = JSON.parse(localStorage.getItem(K.news)||'[]');
+  const box = $('#newsList');
+  if(!list.length){ box.innerHTML = '<small>Tidak ada data. Tekan "Segarkan Berita".</small>'; return; }
+  box.innerHTML = list.map(n=>`
+    <article class="news-item">
+      <img src="${esc(n.img||'')}" alt="" onerror="this.style.display='none'"/>
+      <div>
+        <div class="news-title">${esc(n.title)}</div>
+        <div class="news-meta">${n.manual?'<strong>Manual</strong> • ':''}${esc(n.pub||'')}</div>
+        <div class="row" style="margin-top:6px">
+          <a class="btn ghost" href="${esc(n.link||'#')}" target="_blank" rel="noopener">Baca</a>
+          ${n.manual?`<button class="btn warn" data-del="${esc(n.title)}">Hapus</button>`:''}
+        </div>
+      </div>
+    </article>
+  `).join('');
+  // tombol hapus manual
+  $$('#newsList [data-del]').forEach(b=>b.onclick=()=>{
+    const t=b.getAttribute('data-del');
+    const arr=JSON.parse(localStorage.getItem(K.news)||'[]').filter(x=>!(x.manual && x.title===t));
+    localStorage.setItem(K.news, JSON.stringify(arr)); renderNewsFromCache();
+  });
+}
+$('#refreshNews').onclick=refreshNews;
+
+// Tambah manual (khusus admin: level <=3)
+$('#addNewsOpen').onclick=()=>{
+  const u=loadUser(); if(!u || u.level>3) return alert('Hanya level 1–3 yang boleh menambah berita.');
+  $('#dlgNews').showModal();
+};
+$('#nSave').onclick=(e)=>{
+  e.preventDefault();
+  const t=$('#nTitle').value.trim(); const i=$('#nImage').value.trim(); const c=$('#nContent').value.trim();
+  if(!t) return alert('Judul wajib.');
+  const arr=JSON.parse(localStorage.getItem(K.news)||'[]');
+  arr.unshift({title:t, img:i, link:'#', pub:new Date().toLocaleString('id-ID'), manual:true, content:c});
+  localStorage.setItem(K.news, JSON.stringify(arr)); $('#dlgNews').close(); renderNewsFromCache();
+};
+
+/* ======== ASPIRASI ======== */
+$('#aspSend').onclick=()=>{
+  const u=loadUser(); if(!u) return alert('Masuk dulu');
+  const txt=$('#aspText').value.trim(); if(!txt) return;
+  const arr=JSON.parse(localStorage.getItem(K.asp)||'[]');
+  arr.unshift({id:crypto.randomUUID(), by:u.name, rt:u.rt, level:u.level, text:esc(txt), ts:Date.now(), status:'Baru Masuk'});
+  localStorage.setItem(K.asp, JSON.stringify(arr));
+  $('#aspText').value=''; alert('Aspirasi terkirim. Terima kasih!');
+};
+$('#aspListOpen').onclick=()=>{ const a=JSON.parse(localStorage.getItem(K.asp)||'[]');
+  $('#aspList').innerHTML=a.map(x=>`<div class="card" style="margin:8px 0">
+    <div><strong>${esc(x.by)}</strong> • RT ${esc(x.rt)} • <small>${new Date(x.ts).toLocaleString('id-ID')}</small></div>
+    <div style="margin:6px 0">${x.text}</div>
+    <div class="chip">${x.status}</div>
+  </div>`).join('')||'<small>Belum ada aspirasi.</small>';
+  $('#dlgAsp').showModal();
+};
+
+/* ======== DONASI / KEGIATAN ======== */
+$('#donSave').onclick=()=>{
+  const t=$('#donTitle').value.trim(), d=$('#donDesc').value.trim(), g=parseInt($('#donTarget').value||'0',10);
+  if(!t) return alert('Judul wajib.');
+  const arr=JSON.parse(localStorage.getItem(K.don)||'[]');
+  arr.unshift({id:crypto.randomUUID(),title:t,desc:d,target:g,progress:0,ts:Date.now()});
+  localStorage.setItem(K.don, JSON.stringify(arr)); $('#donTitle').value=''; $('#donDesc').value=''; $('#donTarget').value='';
+  alert('Tersimpan.');
+};
+$('#donListOpen').onclick=()=>{ const a=JSON.parse(localStorage.getItem(K.don)||'[]');
+  $('#donList').innerHTML=a.map(x=>`<div class="card" style="margin:8px 0">
+    <div><strong>${esc(x.title)}</strong> • <small>${new Date(x.ts).toLocaleString('id-ID')}</small></div>
+    <div style="margin:6px 0">${esc(x.desc)}</div>
+    ${x.target?`<div class="chip">Target: Rp ${x.target.toLocaleString('id-ID')}</div>`:''}
+  </div>`).join('')||'<small>Belum ada data.</small>';
+  $('#dlgDon').showModal();
+};
+
+/* ======== CHAT REALTIME (Firebase) ======== */
+/* !!! PENTING: konfigurasi di bawah ini SUDAH diisi sesuai yang kamu kirim. */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD0lvRkxAN8O7PrnS8Z92-Usp3Lcy-5YEc",
+  authDomain: "pijenan-project.firebaseapp.com",
+  databaseURL: "https://pijenan-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "pijenan-project",
+  storageBucket: "pijenan-project.firebasestorage.app",
+  messagingSenderId: "806407795048",
+  appId: "1:806407795048:web:056dbccf7be3a92e0c26dd"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+$('#fbStatus').textContent = 'Terhubung';
+
+/* Room & izin */
+function allowedRooms(u){
+  const base=['umum',`rt${u.rt}`];
+  if(u.level<=3) base.push('staf');
+  return base;
+}
+function attachRoomByPermission(){
+  const u=loadUser(); if(!u) return;
+  const allow = allowedRooms(u);
+  // filter dropdown agar hanya tampil room yang boleh
+  $$('#roomSelect option').forEach(o=>{ o.disabled = !allow.includes(o.value) && !(o.value.startsWith('rt') && o.value===`rt${u.rt}`) && o.value!=='umum'; });
+  $('#roomSelect').value = allow.includes('staf')?'staf':'umum';
+  connectRoom($('#roomSelect').value);
+}
+let currentRoomRef=null;
+function connectRoom(room){
+  const u=loadUser(); if(!u) return;
+  $('#chatWrap').innerHTML = `<div class="bubble system">Bergabung ke #${room}</div>`;
+  if(currentRoomRef && currentRoomRef.off) try{ currentRoomRef.off(); }catch{}
+  const path = `chats/${room}`;
+  currentRoomRef = ref(db, path);
+  onChildAdded(currentRoomRef, snap=>{
+    const m=snap.val(); renderMsg(m,u);
+  });
+}
+function renderMsg(m,u){
+  const box=$('#chatWrap'); const mine = m.uid===u.id;
+  const div=document.createElement('div'); div.className='bubble '+(mine?'me':'other');
+  div.innerHTML = `<div style="font-weight:600">${esc(m.name||'Anon')}</div>
+                   <div>${esc(m.text||'')}</div>
+                   <small class="news-meta">${new Date(m.ts||Date.now()).toLocaleTimeString('id-ID')}</small>`;
+  box.appendChild(div); box.scrollTop=box.scrollHeight;
+}
+$('#roomSelect').onchange=(e)=>connectRoom(e.target.value);
+$('#sendBtn').onclick=()=>{
+  const u=loadUser(); if(!u) return alert('Masuk dulu');
+  const text=$('#chatInput').value.trim(); if(!text) return;
+  const room=$('#roomSelect').value;
+  // Cek izin staf
+  if(room==='staf' && u.level>3) return alert('Room #staf hanya untuk level 1–3');
+  // Cek room RT
+  if(room.startsWith('rt') && room!==`rt${u.rt}` && u.level>3) return alert('Hanya RT sendiri (kecuali pengurus).');
+  push(ref(db, `chats/${room}`), {uid:u.id, name:u.name, level:u.level, rt:u.rt, text:esc(text), ts:Date.now()});
+  $('#chatInput').value='';
+};
+
+/* ===== Tabs (dummy navigasi) ===== */
+$$('.tab').forEach(t=>t.onclick=()=>{
+  $$('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  // di versi 1 halaman, cukup scroll ke bagian terkait
+  if(t.dataset.tab==='news'){ window.scrollTo({top:$('#newsList').getBoundingClientRect().top+window.scrollY-80, behavior:'smooth'}); }
+  else if(t.dataset.tab==='chat'){ window.scrollTo({top:$('#chatWrap').getBoundingClientRect().top+window.scrollY-80, behavior:'smooth'}); }
+  else if(t.dataset.tab==='asp'){ window.scrollTo({top:$('#aspText').getBoundingClientRect().top+window.scrollY-80, behavior:'smooth'}); }
+  else { window.scrollTo({top:0,behavior:'smooth'}) }
+});
+
+/* ===== Start App ===== */
+boot();
+</script>
+</body>
+</html>
